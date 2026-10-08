@@ -29,7 +29,7 @@ from .tools import ToolFailure, generate_memes
 os.makedirs("static", exist_ok=True)
 os.makedirs(settings.export_dir, exist_ok=True)
 
-app = FastAPI(title="Analogy Tutor API")
+app = FastAPI(title="StudiousBrat API")
 
 _origins = (
     ["*"]

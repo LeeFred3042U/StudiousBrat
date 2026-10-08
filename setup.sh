@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Analogy Tutor - one-shot setup and launcher.
+# StudiousBrat - one-shot setup and launcher.
 #
 # Works in WSL, Git Bash (Windows), Linux and macOS.
 #

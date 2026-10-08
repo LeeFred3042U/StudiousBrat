@@ -1,4 +1,4 @@
-# Analogy Tutor
+# StudiousBrat
 
 A chat-first AI learning assistant. It explains a topic Feynman-style, gives an
 analogy from the student's favourite universe (cricket, Spider-Man, cooking...),

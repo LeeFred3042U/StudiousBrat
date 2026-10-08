@@ -1,1 +1,1 @@
-# Analogy Tutor backend package
+# StudiousBrat backend package
