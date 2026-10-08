@@ -53,6 +53,7 @@ async def complete(
     payload: dict = {
         "model": settings.llm_model,
         "messages": [{"role": "system", "content": system_prompt}, *messages],
+        "max_tokens": settings.max_tokens,
     }
     if tools:
         payload["tools"] = tools

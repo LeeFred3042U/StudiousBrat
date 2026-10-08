@@ -24,6 +24,7 @@ class Settings:
         self.min_interval_ms = int(
             os.getenv("LLM_MIN_INTERVAL_MS", os.getenv("MISTRAL_MIN_INTERVAL_MS", "6000"))
         )
+        self.max_tokens = int(os.getenv("LLM_MAX_TOKENS", "4096"))
         self.session_idle_minutes = int(os.getenv("SESSION_IDLE_MINUTES", "30"))
         self.export_dir = os.getenv("EXPORT_DIR", "static/exports")
         self.frontend_origin = os.getenv("FRONTEND_ORIGIN", "*")

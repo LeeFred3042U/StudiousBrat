@@ -31,7 +31,11 @@ os.makedirs(settings.export_dir, exist_ok=True)
 
 app = FastAPI(title="Analogy Tutor API")
 
-_origins = ["*"] if settings.frontend_origin == "*" else [settings.frontend_origin]
+_origins = (
+    ["*"]
+    if settings.frontend_origin == "*"
+    else [o.strip() for o in settings.frontend_origin.split(",") if o.strip()]
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_origins,

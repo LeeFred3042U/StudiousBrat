@@ -163,7 +163,35 @@ fi
 [ -f "$VENV_PY" ] || [ -x "$VENV_PY" ] || die "Backend virtualenv not found. Run ./setup.sh first."
 [ -d "$FRONTEND/node_modules" ] || die "Frontend packages not installed. Run ./setup.sh first."
 
+# uvicorn --reload spawns a child worker process that actually binds the
+# port; the parent PID bash captures with $! is just the reload supervisor.
+# If a previous run was killed uncleanly (closed terminal, OS sleep, etc.)
+# that child can be orphaned and keep holding the port, which is why
+# "Address already in use" can show up even right after Ctrl+C. Free the
+# ports first, best-effort, before trying to bind them again.
+free_port() {
+  local port="$1" pids=""
+  # Every branch below must never return non-zero when the port is free
+  # (the normal, expected case) - under `set -e`/`pipefail` that would kill
+  # the whole script right here, silently, before the servers ever start.
+  if command -v lsof >/dev/null 2>&1; then
+    pids="$(lsof -ti ":$port" 2>/dev/null || true)"
+  elif command -v fuser >/dev/null 2>&1; then
+    pids="$(fuser "$port"/tcp 2>/dev/null | tr -s ' ' || true)"
+  elif command -v netstat >/dev/null 2>&1; then
+    # Git Bash on Windows: parse `netstat -ano` output.
+    pids="$(netstat -ano 2>/dev/null | grep "LISTENING" | grep ":$port " | awk '{print $NF}' | sort -u || true)"
+  fi
+  if [ -n "$pids" ]; then
+    warn "Port $port is already in use (PID(s): $(echo "$pids" | tr '\n' ' ')) - killing the leftover process from a previous run."
+    for p in $pids; do kill -9 "$p" >/dev/null 2>&1 || true; done
+    sleep 1
+  fi
+}
+
 say "Starting servers"
+free_port 8000
+free_port 5173
 BACK_PID=""
 FRONT_PID=""
 
@@ -172,6 +200,10 @@ cleanup() {
   echo "Stopping servers..."
   [ -n "$BACK_PID" ]  && kill "$BACK_PID"  >/dev/null 2>&1 || true
   [ -n "$FRONT_PID" ] && kill "$FRONT_PID" >/dev/null 2>&1 || true
+  sleep 0.5
+  # Belt-and-suspenders: uvicorn --reload's worker child can survive the
+  # parent being killed, so sweep by command line too.
+  pkill -9 -f "uvicorn app.api:app" >/dev/null 2>&1 || true
   wait >/dev/null 2>&1 || true
 }
 trap cleanup EXIT INT TERM
