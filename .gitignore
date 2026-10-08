@@ -1,0 +1,25 @@
+# Node
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Secrets (never commit real credentials)
+.env
+backend/.env
+frontend/.env
+
+# Generated files
+static/exports/
+backend/static/exports/
+*.log
+.setup-logs/
+
+# Misc
+.vercel
+.DS_Store
